@@ -11,7 +11,7 @@
 #define PIN            6
 
 // How many NeoPixels are attached to the Arduino?
-#define NUMPIXELS      40
+#define NUMPIXELS      6
 
 // When we setup the NeoPixel library, we tell it how many pixels, and which pin to use to send signals.
 // Note that for older NeoPixel strips you might need to change the third parameter--see the strandtest
@@ -120,11 +120,11 @@ void minuteHand() {
 
   for (uint8_t p = minuteBrightness; p > 0; p--) {
     clock.setPixelColor(minutePixel - 1 , red0, p , blue0);
-    clock.setPixelColor(minutePixel , red0, p , blue0);
-    delay(5);
+    clock.setPixelColor(minutePixel , red, p , blue);
+    clock.show();
+    delay(10);
   }
   clock.setPixelColor(minutePixel , red, minuteBrightness , blue);
-  clock.show();
   if (minutePixel >= clock.numPixels())  {
     minutePixel = 0;
   }
