@@ -7,6 +7,8 @@
 
 #define NUMPIXELS  60
 
+#define STARTPIXEL 0
+
 Adafruit_NeoPixel clock = Adafruit_NeoPixel(NUMPIXELS, DATAPIN, NEO_GRBW + NEO_KHZ800);
 
 int r = 49;
@@ -19,6 +21,8 @@ int minuteBrightness = 49;
 int hourBrightness = 49;
 
 
+
+
 uint32_t RED = clock.Color(r, 0, 0, 0);
 uint32_t GREEN = clock.Color(0, g, 0, 0);
 uint32_t BLUE = clock.Color(0, 0, b, 0);
@@ -28,12 +32,12 @@ uint32_t WHITE = clock.Color(0, 0, 0, w);
 
 int8_t second = 55;
 int8_t minute = 59;
-int8_t hour = 9;
+int8_t hour = 11;
 uint8_t lastPixel = (clock.numPixels() - 1 );
 
 
 unsigned long previousMillis = 0;
-const long interval = 1000;
+const long interval = 100;
 union ArrayToInteger {
   byte array[4];
   uint32_t integer;
@@ -56,10 +60,11 @@ void loop() {
     previousMillis = secondMillis;
     secondHand();
   }
+  clock.show();
 }
 
 int pixelPosition(int position) {
-  return (position + clock.numPixels() ) % clock.numPixels();
+  return abs((position - 60 ) % 60);
 }
 
 
@@ -67,12 +72,13 @@ int pixelPosition(int position) {
 void hour_mark() {
   for (int i = 0; i <= NUMPIXELS; i = (i + 5 )) {
     clock.setPixelColor(i, WHITE);
-    clock.show();
+    //    clock.show();
   };
 }
 
 void secondHand() {
-
+  Serial.print("Second: ");
+  Serial.println(abs(second % 60));
   uint8_t red0 = clock.getPixelColor(pixelPosition(second - 1))   >> 16;
   uint8_t red  = clock.getPixelColor(pixelPosition(second))       >> 16;
   uint8_t green0 = clock.getPixelColor(pixelPosition(second - 1)) >> 8;
@@ -101,7 +107,7 @@ void secondHand() {
     delay(10);
     bc--;
   }
-  if (second == lastPixel)  {
+  if (second == 59)  {
     second = 0;
     minuteHand();
     hourHand();
@@ -112,6 +118,8 @@ void secondHand() {
 }
 
 void minuteHand() {
+  Serial.print("Minute: ");
+  Serial.println(abs(minute % 60));
   uint8_t red20 = clock.getPixelColor(pixelPosition(minute - 1))   >> 16;
   uint8_t red2  = clock.getPixelColor(pixelPosition(minute))       >> 16;
   uint8_t green20 = clock.getPixelColor(pixelPosition(minute - 1)) >> 8;
@@ -126,11 +134,10 @@ void minuteHand() {
   for (uint8_t p = 0; p < minuteBrightness; p++) {
     clock.setPixelColor(pixelPosition(minute - 1), red20, bc * 0.8, blue20, white20);
     clock.setPixelColor(pixelPosition(minute), red2, p, blue2, white2);
-    clock.show();
-    delay(10);
     bc--;
+    delay(10);
   }
-  if (minute == lastPixel)  {
+  if (minute == 59)  {
     minute = 0;
     //    hourHand();
   }
@@ -140,6 +147,10 @@ void minuteHand() {
 }
 
 void hourHand() {
+  Serial.print("Hour: ");
+  Serial.println(abs(hour % 60));
+  Serial.println(hour);
+
   uint8_t red30 = clock.getPixelColor(pixelPosition((hour * 5) - 5))   >> 16;
   uint8_t red3  = clock.getPixelColor(pixelPosition((hour * 5)))       >> 16;
   uint8_t green30 = clock.getPixelColor(pixelPosition((hour * 5) - 5)) >> 8;
@@ -154,11 +165,10 @@ void hourHand() {
   for (uint8_t p = 0; p < hourBrightness; p++) {
     clock.setPixelColor(pixelPosition((hour * 5) - 5), bc * 0.8, green30, blue30, white30);
     clock.setPixelColor(pixelPosition((hour * 5)), p, green3, blue3, white3);
-    clock.show();
-    delay(10);
     bc--;
   }
-  if ((hour * 5) == lastPixel)  {
+
+  if (hour == 11)  {
     hour = 0;
   }
   else {
